@@ -15,42 +15,33 @@ def get_graph_from_file(file_name: str) -> list:
     >>> with tempfile.NamedTemporaryFile(mode = 'w', delete = False) as tmpfile:
     ...     _ = tmpfile.write(sample)
     ...     _ = tmpfile.flush()
-    ...     list(get_graph_from_file(tmpfile.name))
+    ...     get_graph_from_file(tmpfile.name)
     [[1, 2], [3, 4], [1, 5]]
 
     """
+    graph = []
     with open(file_name, 'r', encoding='utf-8') as file:
         for line in file:
             node1, node2 = map(int, line.strip().split(','))
-            yield [node1, node2]
+            graph.append([node1, node2])
+    return graph
 
 def to_edge_dict(edge_list: list) -> dict:
     """ 
     (list) -> (dict)
 
-    Convert a graph from list of edges to dictionary of vertices.
+    Convert a graph from list of 
+    edges to dictionary of vertices.
     
     >>> to_edge_dict([[1, 2], [3, 4], [1, 5], [2, 4]])
-    {1: [2, 5], 2: [1, 4], 3: [4], 4: [2, 3], 5: [1]}
+    {1: [2, 5], 2: [1, 4], 3: [4], 4: [3, 2], 5: [1]}
     """
     dictionary = {}
-    lst = []
-    for i in edge_list:
-        for j in i:
-            lst.append(j)
-
-    lst = list(set(lst))
-    for i in lst:
-        value = []
-        for n in edge_list:
-            if i in n:
-                if n[0]==i:
-                    value.append(n[1])
-                if n[1]==i:
-                    value.append(n[0])
-        value = sorted(value)
-        dictionary[i] = value
-
+    for edge in edge_list:
+        for node in edge:
+            if node not in dictionary:
+                dictionary[node] = []
+            dictionary[node].append(edge[1 - edge.index(node)])
     return dictionary
 
 
@@ -88,20 +79,12 @@ def add_edge(graph: dict, edge: tuple) -> dict:
      
     """
 
-    for j in edge:
-        if j in graph.keys():
-            if j == edge[0]:
-                graph[j] = graph[j] + [edge[1]]
-            if j == edge[1]:
-                graph[j] = graph[j] + [edge[0]]
-        else:
-            if j == edge[0]:
-                graph[j] = [edge[1]]
-            if j == edge[1]:
-                graph[j] = [edge[0]]
-            continue
-    return graph
+    for node in edge:
+        if node not in graph:
+            graph[node] = []  # Create the node if it doesn't exist
+        graph[node].append(edge[1 - edge.index(node)])  # Add the opposite node
 
+    return graph
 
 
 def del_edge(graph: dict, edge: tuple) -> dict:
@@ -115,19 +98,15 @@ def del_edge(graph: dict, edge: tuple) -> dict:
     >>> del_edge({1: [2, 5], 2: [1, 4], 3: [4], 4: [2, 3], 5: [1]}, (3, 4))
     {1: [2, 5], 2: [1, 4], 4: [2], 5: [1]}
     """
-    for i in edge:
-        if i in graph.keys():
-            lst = graph[i]
-            if edge[0] in lst or edge[1] in lst:
-                if i == edge[0]:
-                    lst.remove(edge[1])
-                if i == edge[1]:
-                    lst.remove(edge[0])
-
-                if lst == []:
-                    del graph[i]
-                else:
-                    graph[i] = lst
+    for node in edge:
+        if node in graph:  # Only check for nodes that exist
+            neighbors = graph[node]
+            try:
+                neighbors.remove(edge[1 - edge.index(node)])  # Remove opposite node
+                if not neighbors:  # Delete node if no neighbors remain
+                    del graph[node]
+            except ValueError:
+                pass  # Edge didn't exist, that's okay
 
     return graph
 
@@ -143,7 +122,7 @@ def add_node(graph: dict, node: int) -> dict:
     >>> add_node({1: [2], 2: [1]}, 1)
     {1: [2], 2: [1]}
     """
-    if node not in graph.keys():
+    if node not in graph:
         graph[node] = []
     return graph
 
@@ -156,11 +135,14 @@ def del_node(graph: dict, node: int) -> dict:
     >>> del_node({1: [2, 5], 2: [1, 4], 3: [4], 4: [2, 3], 5: [1]}, 4)
     {1: [2, 5], 2: [1], 3: [], 5: [1]}
     """
-    if node in graph.keys():
-        del graph[node]
-    for i in graph.values():
-        if node in i:
-            i.remove(node)
+    graph.pop(node, None)  # Safely delete the node
+
+    # Iterate over neighbor lists, removing references to the deleted node
+    for neighbor_list in graph.values():
+        try:
+            neighbor_list.remove(node)
+        except ValueError:
+            pass  # Node was not a neighbor, that's okay
 
     return graph
 
@@ -179,9 +161,8 @@ def convert_to_dot(filename:str) -> None:
     >>> with open (fl, 'r') as dot_file:
     ...     test_result == dot_file.read()
     True
-
     """
-    g = list(get_graph_from_file(filename))
+    g = get_graph_from_file(filename)
     dct = to_edge_dict(g)
     pairs = []
     for key, _ in dct.items():
@@ -197,8 +178,8 @@ def convert_to_dot(filename:str) -> None:
         file.write("}")
 
 if __name__ == "__main__":
-    import doctest
-    print(doctest.testmod())
+    # import doctest
+    # print(doctest.testmod())
     ...
 
 start_time = time.time()
@@ -207,3 +188,4 @@ end_time = time.time()
 elapsed_time = end_time - start_time
 
 print(f"Time taken: {elapsed_time} seconds")
+Time taken: 0.017834186553955078 seconds

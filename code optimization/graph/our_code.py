@@ -3,7 +3,7 @@
 from memory_profiler import profile
 import time
 
-@profile
+# @profile
 def get_graph_from_file(file_name: str) -> list:
     """ 
     (str) -> (list)
@@ -33,9 +33,8 @@ def get_graph_from_file(file_name: str) -> list:
 def to_edge_dict(edge_list: list) -> dict:
     """ 
     (list) -> (dict)
-
-    Convert a graph from list of edges to dictionary of vertices.
-    
+    Convert a graph from list of 
+    edges to dictionary of vertices.
     >>> to_edge_dict([[1, 2], [3, 4], [1, 5], [2, 4]])
     {1: [2, 5], 2: [1, 4], 3: [4], 4: [2, 3], 5: [1]}
     """
