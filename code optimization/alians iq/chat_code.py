@@ -16,6 +16,7 @@ required trips and a list of lists, where each inner list
 represents a trip and contains the names of the people transported 
 on that trip in the order they were chosen by the aliens.
 """
+
 def read_file(file_path: str) -> dict:
     """
     str -> dict
@@ -39,26 +40,49 @@ def read_file(file_path: str) -> dict:
     return dict_smart_people
 
 def rescue_people(smarties: dict, limit_iq: int) -> tuple:
-    if smarties:
-            sort_smarties = {name: iq for name, iq in smarties.items() if iq >= 130}
-            sort_smarties = dict(sorted(sort_smarties.items(), key=lambda x: (-x[1], x[0])))
-            travels = []
-            temp_iq = limit_iq
-            while sort_smarties:
-                current_travels = []
-                remaining_smarties = {}
-                for name, iq in sort_smarties.items():
-                    if temp_iq >= iq:
-                        current_travels.append(name)
-                        temp_iq -= iq
-                    else:
-                        remaining_smarties[name] = iq
-                travels.append(current_travels)
-                sort_smarties = remaining_smarties
-                temp_iq = limit_iq
-            return len(travels), travels
-    return 0, []
+    """
+    (dict, int) -> tuple
 
+    Accepts a dictionary of smarties of people to be evacuated 
+    by the aliens (gets it as a result of the read_file function), 
+    and limit_iq - the limit of the total IQ of people who can be on board 
+    The return value of this function is a tuple of the number of 
+    required trips and a list of lists, where each inner list 
+    represents a trip and contains the names of the people transported 
+    on that trip in the order they were chosen by the aliens.
+    >>> print(rescue_people({'AB': 200, 'BC': 200, 'ID': \
+250, 'IB': 250, 'OC': 300, 'OD': 300, 'i': 350}, 500))
+    (4, [['i'], ['OC', 'AB'], ['OD', 'BC'], ['IB', 'ID']])
+    >>> print(rescue_people({'BC': 200, 'ID': \
+250, 'IB': 250, 'OC': 300, 'OD': 300, 'i': 350}, 400))
+    (6, [['i'], ['OC'], ['OD'], ['IB'], ['ID'], ['BC']])
+    """
+    if not smarties:
+        return (0, [])
+
+  # Filter low IQ individuals
+    smarties = {name: iq for name, iq in smarties.items() if iq >= 130}
+
+    # Sort by IQ (descending)
+    sorted_smarties = dict(sorted(smarties.items(), key=lambda x: x[1], reverse=True))
+    travels = []
+    temp_iq = limit_iq
+
+    while sorted_smarties:
+        temp_travels = []
+        # Iterate over a copy
+        for name, iq in list(sorted_smarties.items()):
+            if temp_iq >= iq:
+                temp_travels.append(name)
+                temp_iq -= iq
+            # Remove from original dict after processing in the copy
+            del sorted_smarties[name]
+            travels.append(temp_travels)
+        # Check if anyone is left after the trip
+        if not sorted_smarties:
+            break
+
+    return (len(travels), travels)
 def create_dict():
     num_keys = 100000
     value_range = (100, 400) 
@@ -80,6 +104,7 @@ def test_time():
     print(f'Execution time: {end_time - start_time}')
 
 
-test_time()
-
+if __name__ == "__main__":
+    import doctest
+    print(doctest.testmod())
 
