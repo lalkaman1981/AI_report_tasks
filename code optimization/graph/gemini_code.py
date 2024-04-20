@@ -3,7 +3,7 @@
 from memory_profiler import profile
 import time
 
-# @profile
+@profile
 def get_graph_from_file(file_name: str) -> list:
     """ 
     (str) -> (list)
@@ -182,9 +182,9 @@ if __name__ == "__main__":
     # print(doctest.testmod())
     ...
 
-start_time = time.time()
+# start_time = time.time()
 convert_to_dot('big_test.txt')
-end_time = time.time()
-elapsed_time = end_time - start_time
+# end_time = time.time()
+# elapsed_time = end_time - start_time
 
-print(f"Time taken: {elapsed_time} seconds")
+# print(f"Time taken: {elapsed_time} seconds")
