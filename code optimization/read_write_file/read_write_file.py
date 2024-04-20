@@ -1,5 +1,7 @@
 import urllib.request
 
+import urllib.request
+
 def read_input_file(url_link: str, number: int) -> list[list[str]]:
     """
     (str, int) -> (list(list))
