@@ -1,5 +1,9 @@
 '''Working with graphs'''
 
+from memory_profiler import profile
+import time
+
+# @profile
 def get_graph_from_file(file_name: str) -> list:
     """ 
     (str) -> (list)
@@ -11,19 +15,14 @@ def get_graph_from_file(file_name: str) -> list:
     >>> with tempfile.NamedTemporaryFile(mode = 'w', delete = False) as tmpfile:
     ...     _ = tmpfile.write(sample)
     ...     _ = tmpfile.flush()
-    ...     get_graph_from_file(tmpfile.name)
+    ...     list(get_graph_from_file(tmpfile.name))
     [[1, 2], [3, 4], [1, 5]]
 
     """
     with open(file_name, 'r', encoding='utf-8') as file:
-        coordinates = file.readlines()
-        graph = []
-        for line in coordinates:
-            coord = []
-            coord.append(int(line[0]))
-            coord.append(int(line[2]))
-            graph.append(coord)
-        return graph
+        for line in file:
+            node1, node2 = map(int, line.strip().split(','))
+            yield [node1, node2]
 
 def to_edge_dict(edge_list: list) -> dict:
     """ 
@@ -132,6 +131,7 @@ def del_edge(graph: dict, edge: tuple) -> dict:
 
     return graph
 
+
 def add_node(graph: dict, node: int) -> dict:
     """ 
     (dict, int) -> (dict)
@@ -179,8 +179,9 @@ def convert_to_dot(filename:str) -> None:
     >>> with open (fl, 'r') as dot_file:
     ...     test_result == dot_file.read()
     True
+
     """
-    g = get_graph_from_file(filename)
+    g = list(get_graph_from_file(filename))
     dct = to_edge_dict(g)
     pairs = []
     for key, _ in dct.items():
@@ -198,5 +199,11 @@ def convert_to_dot(filename:str) -> None:
 if __name__ == "__main__":
     import doctest
     print(doctest.testmod())
+    ...
 
-convert_to_dot('data1.txt')
+start_time = time.time()
+convert_to_dot('big_test.txt')
+end_time = time.time()
+elapsed_time = end_time - start_time
+
+print(f"Time taken: {elapsed_time} seconds")
