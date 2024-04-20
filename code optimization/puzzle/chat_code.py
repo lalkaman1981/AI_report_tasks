@@ -2,37 +2,40 @@
 Chat gpt puzzle program
 """
 
-def validate_board_gpt(board):
+def validate_board_gpt(board: list) -> bool:
     """
-    validate by AI
+    Check if the puzzle game board is valid.
+
+    Args:
+        board (list): List of strings representing the game board.
+
+    Returns:
+        bool: True if the board is valid, False otherwise.
     """
-    size = len(board)
 
-    def has_duplicates(cells):
-        seen = set()
-        for cell in cells:
-            if cell.isdigit():
-                if cell in seen:
-                    return True
-                seen.add(cell)
-        return False
+    seen_rows = [set() for _ in range(9)]
+    seen_cols = [set() for _ in range(9)]
+    seen_blocks = [set() for _ in range(9)]
 
-    # Check rows for duplicates
-    for row in board:
-        if has_duplicates(row):
-            return False
+    for i in range(9):
+        for j in range(9):
+            if board[i][j] != ' ' and board[i][j] != '*':
+                digit = board[i][j]
 
-    # Check columns for duplicates
-    for col in range(size):
-        if has_duplicates(board[row][col] for row in range(size)):
-            return False
+                # Check row
+                if digit in seen_rows[i]:
+                    return False
+                seen_rows[i].add(digit)
 
-    # Check blocks for duplicates
-    block_size = int(size ** 0.5)
-    for i in range(0, size, block_size):
-        for j in range(0, size, block_size):
-            block = [board[i + m][j + n] for m in range(block_size) for n in range(block_size)]
-            if has_duplicates(block):
-                return False
+                # Check column
+                if digit in seen_cols[j]:
+                    return False
+                seen_cols[j].add(digit)
+
+                # Check block
+                block_index = 3 * (i // 3) + j // 3
+                if digit in seen_blocks[block_index]:
+                    return False
+                seen_blocks[block_index].add(digit)
 
     return True
