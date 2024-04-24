@@ -43,7 +43,7 @@ def get_pure_user_words(user_words: list[str], letters: list[str], words_from_di
   """
   Checks user words against the rules and returns words not found in the dictionary.
   """
-  valid_user_words = [word for word in user_words if len(word) >= 4 and all(word.count(c) <= letters.count(c) for c in word)]
+  valid_user_words = [word for word in user_words if len(word) >= 4 and all(word.count(c) <= letters.count(c) and letters[4] in word for c in word)]
   return [word for word in valid_user_words if word not in words_from_dict]
 
 def main():
