@@ -44,7 +44,7 @@ def get_words(f: str, letters: list[str]) -> list[str]:
             if len(word_strip) >= 4 and center_letter in word_strip and all(word_strip.count(char) <= letters.count(char) for char in word_strip):
                 valid_words.append(word_strip)
     
-    return list(valid_words)
+    return valid_words
 
 def is_valid_word(word: str, letters: list[str], center_letter: str) -> bool:
     # Check if word is valid based on game rules
@@ -92,5 +92,6 @@ def main():
     print("\nWords entered by the player but not in the dictionary or with errors:")
     for word in invalid_user_words:
         print(word)
-print(get_pure_user_words(['seva', 'seht', 'sera', 'sare', 'ltr', 'qrt', 'g', 'wwwww', 'rtgf', 'sxdl', 'sedl', 'tsal'],
- 'vhtdsrael', get_words('en.txt', 'vhtdsrael')))
+# print(get_pure_user_words(['seva', 'seht', 'sera', 'sare', 'ltr', 'qrt', 'g', 'wwwww', 'rtgf', 'sxdl', 'sedl', 'tsal'],
+#  'vhtdsrael', get_words('en.txt', 'vhtdsrael')))
+print(get_words('en.txt', [el for el in 'wumrovkif']))
