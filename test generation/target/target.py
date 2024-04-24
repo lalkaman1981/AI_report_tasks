@@ -36,25 +36,41 @@ def get_user_words() -> list[str]:
 
 def get_words(f: str, letters: list[str]) -> list[str]:
     center_letter = letters[4].lower()  # Central letter is at index 4 (0-based index)
-    valid_words = set()
+    valid_words = []
     
-    with open(f, 'r') as file:
-        for word in file:
-            word = word.strip().lower()
-            if len(word) >= 4 and center_letter in word and all(word.count(char) <= letters.count(char) for char in word):
-                valid_words.add(word.capitalize())
+    with open('en.txt', 'r') as file:
+        for word in file.readlines()[3:]:
+            word_strip = word.strip().lower()
+            if len(word_strip) >= 4 and center_letter in word_strip and all(word_strip.count(char) <= letters.count(char) for char in word_strip):
+                valid_words.append(word_strip)
     
     return list(valid_words)
 
-def get_pure_user_words(user_words: list[str], letters: list[str], words_from_dict: list[str]) -> list[str]:
-    missed_words = [word for word in words_from_dict if word not in user_words]
-    invalid_user_words = [word for word in user_words if word not in words_from_dict]
+def is_valid_word(word: str, letters: list[str], center_letter: str) -> bool:
+    # Check if word is valid based on game rules
+    if len(word) < 4 or center_letter not in word:
+        return False
     
-    return missed_words, invalid_user_words
+    letter_counts = {char: letters.count(char) for char in letters}
+    word_counts = {char: word.count(char) for char in set(word)}
+    
+    for char in word_counts:
+        if word_counts[char] > letter_counts.get(char, 0):
+            return False
+    
+    return True
+
+def get_pure_user_words(user_words: list[str], letters: list[str], words_from_dict: list[str]) -> list[str]:
+    center_letter = letters[4].lower()  # Central letter is at index 4 (0-based index)
+    valid_user_words = [word for word in user_words if is_valid_word(word, letters, center_letter)]
+    
+    missed_words = [word for word in valid_user_words if word not in words_from_dict]
+    
+    return missed_words
 
 def main():
     grid = generate_grid()
-    letters = [char for row in grid for char in row]
+    letters = [char.lower() for row in grid for char in row]
     
     print("Game board:")
     for row in grid:
@@ -76,4 +92,5 @@ def main():
     print("\nWords entered by the player but not in the dictionary or with errors:")
     for word in invalid_user_words:
         print(word)
-
+print(get_pure_user_words(['seva', 'seht', 'sera', 'sare', 'ltr', 'qrt', 'g', 'wwwww', 'rtgf', 'sxdl', 'sedl', 'tsal'],
+ 'vhtdsrael', get_words('en.txt', 'vhtdsrael')))
