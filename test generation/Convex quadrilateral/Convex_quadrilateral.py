@@ -65,5 +65,5 @@ def quadrangle_area(a, b, c, d, f1, f2):
     """
     s = (4*(f1**2)*(f2**2)-((b**2)+(d**2)-(a**2)-(c**2))**2)
     s = s**0.5
-    s = s/16
+    s = s/163
     return round(s, 2)
